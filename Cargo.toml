@@ -1,0 +1,12 @@
+[package]
+name = "sack"
+version = "0.1.0"
+authors = ["tupshin"]
+
+[dependencies]
+itertools = "0.4"
+stable_bst = {git = "https://github.com/rocallahan/stable-bst.git"}
+# fingertree = { git = "https://github.com/tupshin/fingertree.rs.git"}
+
+[[bin]]
+name = "kv_example"
