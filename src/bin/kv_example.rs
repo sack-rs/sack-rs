@@ -3,11 +3,12 @@
 extern crate sack;
 extern crate stable_bst;
 
+use stable_bst::TreeMap;
 use stable_bst::Bound;
-use sack::sack::sackerror::SackError;
-use sack::kvsack::*;
-use sack::sack::sack::*;
+use sack::sack::error::SackError;
 use std::ops::Range;
+use sack::examples::kvsack::KVSack;
+use sack::sack::io::StreamWritableSack;
 
 fn main() {
     match other() {
@@ -16,16 +17,16 @@ fn main() {
     }
 }
 
-fn other() -> Result<(), SackError> {
+fn other() -> Result<(), SackError<i32, i32, TreeMap<i32, i32>>> {
     let kvsack: KVSack<i32, i32> = KVSack::default();
-    let kvsack = kvsack.put(3, 1)?
-        .put(5, 2)?
-        .put(4, 8)?
-        .put(13, 1)?;
+    //    let kvsack = kvsack.put((3, 1))?
+    //        .put(5, 2)?
+    //        .put(4, 8)?
+    //        .put(13, 1)?;
 
     // We clone because iterating over a sack consumes it, and we don't implicitly copy Sacks
     println!("iterating over all K/Vs: ",);
-    for item in kvsack.clone() {
+    for item in kvsack.clone().into_iter() {
         println!("{:?}", item);
     }
     println!("");
@@ -38,10 +39,10 @@ fn other() -> Result<(), SackError> {
     // construct for bounded iteration in the future
     // Note that rust Ranges are inclusive start and exclusive end
     // So this should print 3, but not 13
-    println!("ranged iteration - items with keys 3 and above, but less than 13: ");
-    for (k, v) in kvsack.into_range_iter::<(i32, i32)>(Bound::Included(&3), Bound::Excluded(&13)) {
-        println!("{:?}, {:?}", k, v);
-    }
+    println!("ranged iteration - items with keys 4 and above, but less than 13: ");
+    //    for (k, v) in kvsack.into_range_iter::<(i32, i32)>(Bound::Included(&4), Bound::Excluded(&13)) {
+    //        println!("{:?}, {:?}", k, v);
+    //    }
     println!("");
     Ok(())
 }

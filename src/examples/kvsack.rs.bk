@@ -22,13 +22,13 @@ use std::marker::PhantomData;
 
 pub type KVSack<K, V> = Sack<K, V, TreeMap<K, V>>;
 
-pub type KVPair<K, V> = Sack<K, V, ()>;
+pub type KVPair<K,V> = Sack<K,V,()>;
 
-pub type KVSackIterator<K, V> = WrappingSackIterator<K, V>;
+pub type KVSackIterator<K,V> = WrappingSackIterator<K,V>;
 
-// impl<K:Clone+Ord + SackLike<K,V>,V:Clone+Ord> IntoSackIterator<K,V,TreeMap<K,V>> for KVSack<K,V> {
-//
-// }
+//impl<K:Clone+Ord + SackLike<K,V>,V:Clone+Ord> IntoSackIterator<K,V,TreeMap<K,V>> for KVSack<K,V> {
+//	
+//}
 
 impl<K: Ord + Clone, V: Clone + Ord> SackLike<K, V> for TreeMap<K, V> {
     fn len(&self) -> isize {
@@ -79,47 +79,44 @@ impl<K: Clone + Ord + Copy + Hash + SackLike<K, ()>, V: Clone + Ord + Copy + Sac
 
 // type foo<K,V>= KVSackIterator<K,V,Item=KVSack<K,V>>;
 
-impl<K: Ord + Clone + SackLike<K, ()>, V: Clone + Ord + SackLike<K, ()> + SackLike<V, ()>> IntoSackIterator<K, V, ()> for KVPair<K, V> {
-    type IntoSackIter = SingleSackIterator<(K, V)>;
-    type Item = Sack<(K, V), (), ()>;
-    fn into_sack_iter(self) -> SackIterator<K, V> {
-        SackIterator { internal: unimplemented!() }
+impl<K: Ord + Clone + SackLike<K, ()> , V: Clone + Ord + SackLike<K, ()> + SackLike<V, ()>> IntoSackIterator<K,V,()> for KVPair<K,V> {
+    default type IntoSackIter = SingleSackIterator<(K,V)>;
+    default type Item = Sack<(K, V), (), ()>;
+    default fn into_sack_iter(self) -> SackIterator<K,V> {
+        SackIterator{internal:unimplemented!()}
     }
 }
 
-impl<'a, K: Clone + Ord, V: Clone + Ord> IntoSackIterator<K, V, Sack<K, V, ()>> for map::Iter<'a, K, V, map::Forward> {
+impl<'a, K: Clone + Ord, V: Clone + Ord> IntoSackIterator<K, V, Sack<K,V,()>> for map::Iter<'a, K, V, map::Forward> {
     type Item = KVPair<K, V>;
     type IntoSackIter = KVSackIterator<K, V>;
-    fn into_sack_iter(self) -> SackIterator<K, V> {
+    fn into_sack_iter(self) -> SackIterator<K, V>  {
         unimplemented!()
     }
 }
 
-impl<K, V> SackLike<(K, V), ()> for (K, V) {
-    fn len(&self) -> isize {
-        1
-    }
+impl<K,V> SackLike<(K, V), ()> for (K,V) {
+	fn len(&self) -> isize {1}
 }
 
 impl<K: Ord + Clone + SackLike<K, ()>, V: Ord + Clone + SackLike<K, ()>> IntoSackIterator<K, V, TreeMap<K, V>> for KVSack<K, V> {
-    type Item = Sack<(K, V), (), (K, V)>;
+    type Item = Sack<(K, V),(), (K,V)>;
     type IntoSackIter = KVSackIterator<K, V>;
     fn into_sack_iter(self) -> SackIterator<K, V> {
         unimplemented!()
     }
 }
 
-trait IntoKVSackIterator<K: Ord + Clone + SackLike<K, V>, V: Ord + Clone>
-    : IntoSackIterator<K, V, ()> {
-    // fn into_sack_itter
+trait IntoKVSackIterator<K:Ord+Clone+SackLike<K,V>,V:Ord+Clone> : IntoSackIterator<K,V,()> {
+//fn into_sack_itter
 }
+    
 
-
-impl IntoKVSackIterator<i32, ()> for i32 {
-    //    fn into_sack_iter(&self) -> SackIterator<Item=Sack<i32,i32,()>>  {
-    //    unimplemented!()
-    //    }
-}
+    impl IntoKVSackIterator<i32,()> for i32 {
+//    fn into_sack_iter(&self) -> SackIterator<Item=Sack<i32,i32,()>>  {
+//    unimplemented!()
+//    }
+    }
 
 
 
@@ -141,17 +138,12 @@ impl<K: PartialOrd + Ord + Clone + SackLike<K, ()>, V: Ord + Clone + SackLike<K,
 
 // impl<K: Ord, V> SackLike<K, V> for TreeMap<K, V> {}
 
-impl<K: Ord + Clone + SackLike<K, ()>, V: Ord + Clone> Iterator for KVSackIterator<K, V> {
-    type Item = Sack<(K, V), (), (K, V)>;
+impl<K: Ord + Clone + SackLike<K,()>, V: Ord + Clone> Iterator for KVSackIterator<K, V> {
+    type Item = Sack<(K, V),(),(K,V)>;
     fn next(&mut self) -> Option<Sack<(K, V), (), (K, V)>> {
         match self.internal.next() {
-            None => None,
-            Some(kv) => {
-                Some(Sack {
-                    i: kv,
-                    _foo: PhantomData,
-                })
-            }
+        	None => None,
+        	Some(kv) => Some(Sack{i:kv,_foo:PhantomData})
         }
     }
 }
@@ -177,7 +169,8 @@ impl<K: Ord + Clone + SackLike<K, ()>, V: Ord + Clone> Iterator for KVSackIterat
 // }
 
 impl StreamWritableSack<i32, i32, TreeMap<i32, i32>> for KVSack<i32, i32> {
-    fn put(self, contents: &SackIterator<i32, i32>) -> Result<KVSack<i32, i32>, SackError<i32, i32, TreeMap<i32, i32>>> {
+    fn put(self, contents: &SackIterator<i32, i32>)
+           -> Result<KVSack<i32, i32>, SackError<i32, i32, TreeMap<i32, i32>>> {
         unimplemented!()
     }
 }
@@ -225,11 +218,11 @@ impl StreamWritableSack<i32, i32, TreeMap<i32, i32>> for KVSack<i32, i32> {
 //    }
 // }
 
-impl<K: Clone + Ord, V: Clone + Ord + SackLike<V, ()>, I: SackLike<K, V>> IntoSackIterator<K, V, I> for TreeMap<K, V> {
+impl<K: Clone + Ord, V: Clone + Ord + SackLike<V, ()>,I: SackLike<K, V>> IntoSackIterator<K, V, I> for TreeMap<K, V> {
     type Item = WrapperSack<V, ()>;
     type IntoSackIter = KVSackIterator<K, V>;
     fn into_sack_iter(self) -> SackIterator<K, V> {
-        SackIterator { internal: self }
+        SackIterator{internal:self}
     }
 }
 
