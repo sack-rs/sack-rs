@@ -76,8 +76,8 @@ pub type SingleSackIterator<T> = SackIterator<T, ()>;
 // }
 
 impl Iterator for NullSackIterator {
-    type Item = ProtoSack;
-    fn next(&mut self) -> Option<ProtoSack> {
+    default type Item = ProtoSack;
+    default fn next(&mut self) -> Option<ProtoSack> {
         None
     }
 }

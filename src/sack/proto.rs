@@ -14,8 +14,10 @@ impl IntoSackIterator<(), (), ()> for ProtoSack {
     }
 }
 
-impl IntoIterator for ProtoSack {
-    type Item = ProtoSack;
+
+
+impl IntoIterator for ProtoSack where SackIterator<(),()> : IntoIterator {
+default    type Item = Sack<(), (), ()> ;
     type IntoIter = NullSackIterator;
     fn into_iter(self) -> NullSackIterator {
         NullSackIterator { internal: TreeMap::new() }

@@ -64,7 +64,7 @@ impl<K: Clone + Ord, V: Clone + Ord> SackLike<K, V> for Sack<(K, V), (), (K, V)>
 }
 
 impl<T, C> SackLike<T, C> for () {
-    fn len(&self) -> isize {
+    default fn len(&self) -> isize {
         unimplemented!()
     }
 }
