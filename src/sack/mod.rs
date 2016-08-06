@@ -1,5 +1,4 @@
 pub mod error;
-// pub mod sack;
 pub mod io;
 pub mod core;
 pub mod iterator;

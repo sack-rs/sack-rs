@@ -9,6 +9,7 @@ use sack::sack::error::SackError;
 use std::ops::Range;
 use sack::examples::kvsack::KVSack;
 use sack::sack::io::StreamWritableSack;
+use sack::sack::iterator::IntoSackIterator;
 
 fn main() {
     match other() {
@@ -26,7 +27,7 @@ fn other() -> Result<(), SackError<i32, i32, TreeMap<i32, i32>>> {
 
     // We clone because iterating over a sack consumes it, and we don't implicitly copy Sacks
     println!("iterating over all K/Vs: ",);
-    for item in kvsack.clone().into_iter() {
+    for item in kvsack.clone().into_sack_iter() {
         println!("{:?}", item);
     }
     println!("");
