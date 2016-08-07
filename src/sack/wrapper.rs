@@ -1,13 +1,14 @@
 use sack::core::{Sack, SackLike};
 use sack::iterator::{IntoSackIterator, NullSackIterator, SackIterator};
 use sack::proto::ProtoSack;
+use sack::token::Token;
+use std::hash::Hash;
 
 /// A Wrapper Sack is a sack that can only contain a single non-sack value, and therefore can't have recursive children.
 /// It has all the normal sack functionality, but by guaranteeing having no children and only a single item,
 /// the type system can be
 /// simplified.
-pub struct WrapperSack<T: Clone + Ord + SackLike<T, ()>, I: SackLike<T, ()>>(// )>, I: SackLike<T, ()>>(// )>, I: SackLike<T, ()>>(// )>, I: SackLike<T, ()>>(
-                                                                             pub Sack<T, (), I>);
+pub struct WrapperSack<T: Token+ SackLike<T, (),(),()>, C: Token>(pub Sack<T, C, (), ()>);
 
 // // Anything that can provide enough functionality that it can be the backing
 // // store for a sack

@@ -3,10 +3,11 @@ use std::fmt;
 use std::fmt::Debug;
 use sack::core::{Sack, SackLike};
 use std::marker::Reflect;
+use sack::token::Token;
 
 #[derive(Debug)]
-pub struct SackError<T: Ord + Clone + Copy, C: Ord + Clone + Copy, I: SackLike<T, C>> {
-    sack: Sack<T, C, I>,
+pub struct SackError<T: Token, C: Token, D: Token, I> {
+    sack: Sack<T, C, D, I>,
     pub error: ErrorType,
 }
 
@@ -15,13 +16,16 @@ pub enum ErrorType {
     SackNotFound,
 }
 
-impl<T: Clone + Ord + Copy + Reflect + Debug, C: Clone + Ord + Copy + Reflect + Debug, I:Reflect+Debug+SackLike<T,C>> fmt::Display for SackError<T, C, I> {
+impl<T: Token + Reflect + Debug, C: Token + Reflect + Debug, D: Token + Reflect + Debug, I: SackLike<C, D, (), ()>+SackLike<C, D,  (), ()>+Reflect + Debug> fmt::Display for SackError<T,
+                                                                                                                                        C,
+                                                                                                                                        D,
+                                                                                                                                        I> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "({})", self.description())
     }
 }
 
-impl<T: Clone + Ord + Copy + Debug + Reflect, C: Clone + Ord + Copy + Debug + Reflect, I: Debug + Reflect+SackLike<T,C>> Error for SackError<T, C, I> {
+impl<T: Token + Debug + Reflect, C: Token + Debug + Reflect, D: Token + Debug + Reflect, I: Debug + Reflect+SackLike<C,D,(),()>> Error for SackError<T, C, D,I> {
     fn description(&self) -> &str {
         "generic error"
     }

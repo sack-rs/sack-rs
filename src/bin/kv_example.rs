@@ -10,7 +10,7 @@ use std::ops::Range;
 use sack::examples::kvsack::KVSack;
 use sack::sack::io::StreamWritableSack;
 use sack::sack::iterator::IntoSackIterator;
-
+use std::marker::PhantomData;
 fn main() {
     match other() {
         Ok(()) => println!("No whammies!"),
@@ -18,15 +18,20 @@ fn main() {
     }
 }
 
-fn other() -> Result<(), SackError<i32, i32, TreeMap<i32, i32>>> {
-    let kvsack: KVSack<i32, i32> = KVSack::default();
+fn other() -> Result<(), SackError<i32, i32, i32, TreeMap<i32, i32>>> {
+    let kvsack: KVSack<(), i32, i32> = KVSack {
+        t: (),
+        c: PhantomData,
+        d: PhantomData,
+        i: TreeMap::new(),
+    };
     //    let kvsack = kvsack.put((3, 1))?
     //        .put(5, 2)?
     //        .put(4, 8)?
     //        .put(13, 1)?;
 
     // We clone because iterating over a sack consumes it, and we don't implicitly copy Sacks
-    println!("iterating over all K/Vs: ",);
+    println!("iterating over all K/Vs: ");
     for item in kvsack.clone().into_sack_iter() {
         println!("{:?}", item);
     }
