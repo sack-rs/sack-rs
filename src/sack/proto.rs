@@ -5,7 +5,7 @@ use sack::core::SackLike;
 use stable_bst::TreeMap;
 use std::marker::PhantomData;
 
-pub type ProtoSack = Sack<(), (), (), ()>;
+pub type ProtoSack = Sack<(), (), ()>;
 
 impl Default for ProtoSack {
     fn default() -> Self {

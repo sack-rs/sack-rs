@@ -12,8 +12,8 @@ use std::marker::PhantomData;
 use sack::token::Token;
 // use stable_bst::Direction;
 
-pub struct SackIterator<'a, T: Token + 'a, C: Token + 'a, D: Token + 'a, I: SackLike<C, D, (), ()> + 'a> {
-    pub internal: &'a Iterator<Item=Sack<T,C, D, I> >
+pub struct SackIterator<'a, T: Token + 'a, C: Token + 'a, I: SackLike<T,C> + 'a> {
+    pub internal: &'a Iterator<Item=Sack<T,C, I> >
     
 }
 
@@ -25,14 +25,14 @@ pub struct WrappingSackIterator<T: Clone + Ord, C: Clone + Ord> {
 //
 // }
 
-pub trait IntoSackIterator<'a, T: Token, C: Token, D: Token, I: SackLike<C, D, (), ()>> {
+pub trait IntoSackIterator<'a, T: Token, C: Token, I: SackLike<T,C>> {
     type Item;
     type IntoSackIter;
-    fn into_sack_iter(self) -> SackIterator<'a, T, C, D, I>;
+    fn into_sack_iter(self) -> SackIterator<'a, T, C, I>;
     //        where Self: Sized;
 }
 
-impl<'a> IntoSackIterator<'a, (), (), (), ()> for () {
+impl<'a> IntoSackIterator<'a, (), (), ()> for () {
     type Item = ();
     type IntoSackIter = NullSackIterator<'a>;
     fn into_sack_iter(self) -> NullSackIterator<'a> {
@@ -40,18 +40,18 @@ impl<'a> IntoSackIterator<'a, (), (), (), ()> for () {
     }
 }
 
-impl<'a> IntoSackIterator<'a, i32, (), (), ()> for i32 {
+impl<'a> IntoSackIterator<'a, i32, (), (),> for i32 {
     type Item = ();
     type IntoSackIter = SingleSackIterator<'a, i32>;
-    fn into_sack_iter(self) -> SackIterator<'a, i32, (), (), ()> {
+    fn into_sack_iter(self) -> SackIterator<'a, i32, (), ()> {
         unimplemented!()
     }
 }
 
-impl<'a, T: 'a + Token, C: 'a + Token, D: Token + 'a, I: SackLike<C,D,(),()> + SackLike<T,C,D,I> + 'a> IntoSackIterator<'a, T, C, D,I> for Sack<T, C, D, I> {
+impl<'a, T: 'a + Token, C: 'a + Token, I: SackLike<T,C> + SackLike<T,C> + 'a> IntoSackIterator<'a, T, C,I> for Sack<T, C, I> {
     type Item = ();
-    type IntoSackIter = SackIterator<'a, T, C,D,I>;
-    fn into_sack_iter(self) -> SackIterator<'a, T, C,D,I> {
+    type IntoSackIter = SackIterator<'a, T, C,I>;
+    fn into_sack_iter(self) -> SackIterator<'a, T, C,I> {
         SackIterator{internal:self.i.into_iter()}
     }
 }
@@ -64,9 +64,9 @@ impl<'a, T: 'a + Token, C: 'a + Token, D: Token + 'a, I: SackLike<C,D,(),()> + S
 //    }
 // }
 
-pub type NullSackIterator<'a> = SackIterator<'a, (), (), (), ()>;
+pub type NullSackIterator<'a> = SackIterator<'a, (), (), ()>;
 
-pub type SingleSackIterator<'a, T> = SackIterator<'a, T, (), (), ()>;
+pub type SingleSackIterator<'a, T> = SackIterator<'a, T, (), ()>;
 // impl SackIterator<i32,(),()> for i32 {
 // /    type Item = i32;
 // }
@@ -88,10 +88,10 @@ pub type SingleSackIterator<'a, T> = SackIterator<'a, T, (), (), ()>;
 //    }
 // }
 
-impl<'a, T: Token, C: Token, D: Token, I: SackLike<C, D, (), ()> + SackLike<T, C, D, I>> Iterator for SackIterator<'a, T, C, D, I> {
-    type Item = Sack<T, C, D, I>;
-    fn next(&mut self) -> Option<<SackIterator<T, C, D, I> as Iterator>::Item> {
-        self.internal.next().and_then(|(t, (c, d, i)): (T, (C, D, I))| {
+impl<'a, T: Token, C: Token, I: SackLike<T, C>> Iterator for SackIterator<'a, T, C, I> {
+    type Item = Sack<T, C, I>;
+    fn next(&mut self) -> Option<<SackIterator<T, C, I> as Iterator>::Item> {
+        self.internal.next().and_then(|(t, (c, d, i)): (T, (C, I))| {
             Some(Sack {
                 t: t,
                 c: PhantomData,
